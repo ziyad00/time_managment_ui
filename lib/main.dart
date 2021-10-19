@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:time_managment_flutter/detailTask.dart';
 
 void main() {
   runApp(MyApp());
@@ -10,6 +11,7 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Time Manamgent',
+  
       theme: ThemeData(
         // This is the theme of your application.
         //
@@ -21,8 +23,16 @@ class MyApp extends StatelessWidget {
         // Notice that the counter didn't reset back to zero; the application
         // is not restarted.
         primarySwatch: Colors.blue,
+        
       ),
-      home: MyHomePage(),
+      initialRoute: '/',
+      routes: {
+          // When navigating to the "/" route, build the FirstScreen widget.
+        '/': (context) =>  MyHomePage(),
+        // When navigating to the "/second" route, build the SecondScreen widget.
+        '/second': (context) =>  DetailTask(ModalRoute.of(context)!.settings.arguments),
+  },
+//      home: MyHomePage(),
     );
   }
 }
@@ -45,7 +55,7 @@ final List<int> colorCodes = <int>[600, 500, 100];
 _OnPressedAddList() {
 setState(() {
      this.entries.add(" ");
-          print(this.entries);
+
   });
 
   }
@@ -68,7 +78,12 @@ setState(() {
   padding: const EdgeInsets.all(8),
   itemCount: entries.length,
   itemBuilder: (BuildContext context, int index) {
-    return Row(
+    return new GestureDetector(
+      onTap: (){
+            Navigator.pushNamed(context, '/second',arguments: ScreenArguments(
+                    entries[index]));
+        },
+      child: Row(
   children:  <Widget>[
     Expanded(
       child: Text("dddl ${entries[index]}", textAlign: TextAlign.center),
@@ -77,7 +92,7 @@ setState(() {
       child: Text('Craft beautiful UIs', textAlign: TextAlign.center),
     ),
   ],
-);
+));
   },
   separatorBuilder: (BuildContext context, int index) => const Divider(),
 ),
@@ -88,4 +103,10 @@ setState(() {
       ), // This trailing comma makes auto-formatting nicer for build methods.
     );
   }
+}
+
+class ScreenArguments {
+  final String element;
+
+  ScreenArguments(this.element);
 }
