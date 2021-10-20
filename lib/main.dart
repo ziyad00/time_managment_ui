@@ -30,9 +30,8 @@ class MyApp extends StatelessWidget {
           // When navigating to the "/" route, build the FirstScreen widget.
         '/': (context) =>  MyHomePage(),
         // When navigating to the "/second" route, build the SecondScreen widget.
-        '/second': (context) =>  DetailTask(ModalRoute.of(context)!.settings.arguments),
+        '/second': (context) =>  DetailTask(),
   },
-//      home: MyHomePage(),
     );
   }
 }
@@ -50,11 +49,13 @@ class MyHomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<MyHomePage> {
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
-final List<String> entries = <String>['A', 'B', 'C'];
-final List<int> colorCodes = <int>[600, 500, 100];
+final List<String> entries = <String>[];
+final List<int> numbers = <int>[];
+
 _OnPressedAddList() {
 setState(() {
-     this.entries.add(" ");
+     this.entries.add("dhdhhdhdhdhdh ");
+     numbers.add(100);
 
   });
 
@@ -80,8 +81,7 @@ setState(() {
   itemBuilder: (BuildContext context, int index) {
     return new GestureDetector(
       onTap: (){
-            Navigator.pushNamed(context, '/second',arguments: ScreenArguments(
-                    entries[index]));
+            Navigator.pushNamed(context, '/second',arguments: ScreenArguments(entries[index]));
         },
       child: Row(
   children:  <Widget>[
@@ -89,7 +89,7 @@ setState(() {
       child: Text("dddl ${entries[index]}", textAlign: TextAlign.center),
     ),
     Expanded(
-      child: Text('Craft beautiful UIs', textAlign: TextAlign.center),
+      child: Text('Craft ${numbers[index]}', textAlign: TextAlign.center),
     ),
   ],
 ));
@@ -106,7 +106,8 @@ setState(() {
 }
 
 class ScreenArguments {
-  final String element;
+  final String name;
 
-  ScreenArguments(this.element);
+  ScreenArguments(this.name);
+  
 }
