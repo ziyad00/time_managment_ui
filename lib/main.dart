@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:time_managment_flutter/detailTask.dart';
 
@@ -11,7 +13,6 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Time Manamgent',
-  
       theme: ThemeData(
         // This is the theme of your application.
         //
@@ -23,23 +24,20 @@ class MyApp extends StatelessWidget {
         // Notice that the counter didn't reset back to zero; the application
         // is not restarted.
         primarySwatch: Colors.blue,
-        
       ),
       initialRoute: '/',
       routes: {
-          // When navigating to the "/" route, build the FirstScreen widget.
-        '/': (context) =>  MyHomePage(),
+        // When navigating to the "/" route, build the FirstScreen widget.
+        '/': (context) => MyHomePage(),
         // When navigating to the "/second" route, build the SecondScreen widget.
-        '/second': (context) =>  DetailTask(),
-  },
+        '/second': (context) => DetailTask(),
+      },
     );
   }
 }
 
 class MyHomePage extends StatefulWidget {
   MyHomePage({Key? key}) : super(key: key);
-
-
 
   final String title = "Home";
 
@@ -49,16 +47,18 @@ class MyHomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<MyHomePage> {
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
-final List<String> entries = <String>[];
-final List<int> numbers = <int>[];
+  final List<String> entries = <String>[];
+  final DateTime date = DateTime(2019);
+  final DateTime now = DateTime.now();
+  bool countDown = true;
 
-_OnPressedAddList() {
-setState(() {
-     this.entries.add("dhdhhdhdhdhdh ");
-     numbers.add(100);
 
-  });
 
+  
+  _OnPressedAddList() {
+    setState(() {
+      this.entries.add("dhdhhdhdhdhdh ");
+    });
   }
 
   @override
@@ -70,32 +70,41 @@ setState(() {
     // fast, so that you can just rebuild anything that needs updating rather
     // than having to individually change instances of widgets.
     return Scaffold(
-        appBar: AppBar(
-          // Here we take the value from the MyHomePage object that was created by
-          // the App.build method, and use it to set our appbar title.
-          title: Text(widget.title),
-        ),
-        body: ListView.separated(
-  padding: const EdgeInsets.all(8),
-  itemCount: entries.length,
-  itemBuilder: (BuildContext context, int index) {
-    return new GestureDetector(
-      onTap: (){
-            Navigator.pushNamed(context, '/second',arguments: ScreenArguments(entries[index]));
+      appBar: AppBar(
+        // Here we take the value from the MyHomePage object that was created by
+        // the App.build method, and use it to set our appbar title.
+        title: Text(widget.title),
+      ),
+      body: ListView.separated(
+        padding: const EdgeInsets.all(8),
+        itemCount: entries.length,
+        itemBuilder: (BuildContext context, int index) {
+          return new GestureDetector(
+              onTap: () {
+                Navigator.pushNamed(context, '/second',
+                    arguments: ScreenArguments(entries[index]));
+              },
+              child: Row(
+                children: <Widget>[
+                  Expanded(
+                    child: StreamBuilder(
+                      initialData: "working", 
+                      stream: _someData(),
+                      builder: (context, snapshot) {
+                        return Text("dddl ${entries[index]}";
+                      },
+                      ) ,
+                        textAlign: TextAlign.center),
+                  ),
+                  Expanded(
+                    child: Text('Craft ${now.difference(date).inMilliseconds}',
+                        textAlign: TextAlign.center),
+                  ),
+                ],
+              ));
         },
-      child: Row(
-  children:  <Widget>[
-    Expanded(
-      child: Text("dddl ${entries[index]}", textAlign: TextAlign.center),
-    ),
-    Expanded(
-      child: Text('Craft ${numbers[index]}', textAlign: TextAlign.center),
-    ),
-  ],
-));
-  },
-  separatorBuilder: (BuildContext context, int index) => const Divider(),
-),
+        separatorBuilder: (BuildContext context, int index) => const Divider(),
+      ),
       floatingActionButton: FloatingActionButton(
         onPressed: _OnPressedAddList,
         tooltip: 'Increment',
@@ -109,5 +118,10 @@ class ScreenArguments {
   final String name;
 
   ScreenArguments(this.name);
-  
+}
+
+Stream<int> _someData() async* {
+  yield* Stream.periodic(Duration(seconds: 1), (int a){
+    return a++;
+  });
 }
