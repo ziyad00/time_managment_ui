@@ -1,9 +1,11 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:time_managment_flutter/main.dart';
+import 'package:time_managment_flutter/screens/HomePage.dart';
 
 class DetailTask extends StatefulWidget {
-  const DetailTask({Key? key}) : super(key: key);
+    final String routeArgs;
+
+  const DetailTask(this.routeArgs, {Key? key}) : super(key: key);
 
   @override
   DetailTaskState createState() {
@@ -16,8 +18,6 @@ class DetailTaskState extends State<DetailTask> {
 
   @override
   Widget build(BuildContext context) {
-      final routeArgs =
-           ModalRoute.of(context)?.settings.arguments as ScreenArguments?;
     return Scaffold(
       appBar:  AppBar(
         title: Text("Task Detail"),
@@ -31,7 +31,7 @@ class DetailTaskState extends State<DetailTask> {
   decoration: InputDecoration(
     border: OutlineInputBorder(),
     labelText: 'Name',
-    hintText: routeArgs!.name,
+    hintText: widget.routeArgs,
   ),
   
 ), TextFormField(
