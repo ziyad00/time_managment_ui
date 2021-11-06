@@ -1,5 +1,9 @@
+import 'dart:async';
+import 'dart:convert';
+
 import 'package:flutter_session/flutter_session.dart';
 import 'package:http/http.dart' as http;
+import 'package:time_managment_flutter/screens/HomePage.dart';
 import 'package:time_managment_flutter/services/auth_service.dart';
 class TaskService {
   final baseUrl = 'http://localhost:3000/tasks';
@@ -7,14 +11,42 @@ class TaskService {
   static final SESSION = FlutterSession();
 
 
-  Future<dynamic> get_all() async {
-    try {
-      var token = (await AuthService.getToken())['token'];
-      var res = await http.get(Uri.parse('$baseUrl/'), headers: {'Authorization':'bearer ${token}'});
-      return res;
-    } finally {
+  //Future<dynamic> get_all() async {
+    //try {
+      //var token = (await AuthService.getToken())['token'];
+      //var res = await http.get(Uri.parse('$baseUrl/'), headers: {'Authorization':'bearer ${token}'});
+      //var client = http.Client();
+      //var req =  http.Request('get', Uri.parse(baseUrl));
+    //  var streamRes = await client.send(req);
+  // streamRes.stream.transofrm();
+     // return res;
+    //} finally {
       // done you can do something here
-    }
+    //}
+  //}
+
+  static get_all(StreamController<Task> sc) async {
+    String url = "http://localhost:3000/tasks";
+    var client =  http.Client();
+    var token = (await AuthService.getToken())['token'];
+    var userAgent = UserAgentClient(token, client);
+
+   // var req = await client.get(Uri.parse(url), headers: {'Authorization':'bearer ${token}'});
+    var req =  http.Request('get', Uri.parse(url) );
+
+    //var streamedRes = await client.send(req);
+    var streamedRes = await userAgent.send(req);
+
+    streamedRes.stream
+        .transform(utf8.decoder)
+        .transform(json.decoder)
+        .expand((e) {
+          print("object");
+            print(e );
+           return e as Iterable<dynamic>;
+        })
+        .map((map) => Task.fromJsonMap(map))
+        .pipe(sc);
   }
 
   Future<dynamic> login(String email, String password) async {
@@ -61,5 +93,16 @@ class _AuthData {
     data['refreshToken'] = refreshToken;
     data['clientId'] = clientId;
     return data;
+  }
+}
+class UserAgentClient extends http.BaseClient {
+  final String token;
+  final http.Client _inner;
+
+  UserAgentClient(this.token, this._inner);
+
+  Future<http.StreamedResponse> send(http.BaseRequest request) {
+    request.headers['Authorization'] = 'bearer ${token}';
+    return _inner.send(request);
   }
 }

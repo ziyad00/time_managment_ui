@@ -4,6 +4,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:time_managment_flutter/screens/detailTask.dart';
 import 'package:time_managment_flutter/services/tasks_services.dart';
+import 'package:http/http.dart' as http;
 
 
 
@@ -17,7 +18,8 @@ class MyHomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<MyHomePage> {
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
-  final List tasks = [];
+  final List<Task> tasks = [];
+  late final StreamController<Task> streamController;
   final DateTime date = DateTime(2019);
   final DateTime now = DateTime.now();
   final taskService = TaskService();
@@ -25,19 +27,31 @@ class _MyHomePageState extends State<MyHomePage> {
 
 
 
-  _printing()async {
+ /* _printing()async {
     var x = await taskService.get_all();
     final data = jsonDecode(x.body) as Map<dynamic, dynamic>;
     data['tasks'].forEach((task) => tasks.add(task));
     print(tasks);
     return tasks;
   }
+  */
     @override
     void initState() {
-      setState(() {
-          var x =   _printing();
-    });
+      super.initState();
+      print("starter");
+      print(tasks);
+    streamController = StreamController.broadcast();
+
+    streamController.stream.listen((p) => setState(() => tasks.add(p)));
+
+    TaskService.get_all(streamController);
+    print("end")
+    print(tasks);
+    //print(tasks);
+
+    
   }
+     
   _OnPressedAddList() {
    // setState(() {
       //this.tasks.add("dhdhhdhdhdhdh ");
@@ -59,16 +73,16 @@ class _MyHomePageState extends State<MyHomePage> {
         itemCount: tasks.length,
         itemBuilder: (BuildContext context, int index) {
           return new GestureDetector(
-              onTap: () {
-                Navigator.pushNamed(context, '/second',
-                    arguments: tasks[index]['task']['name'] );
-              },
+          //    onTap: () {
+            //    Navigator.pushNamed(context, '/second',
+              //      arguments: tasks[index]['task']['name'] );
+              //},
               child: Row(
                 children: <Widget>[
-                    Expanded(
-                    child: Text('${tasks[index]['task']['name']} ',
-                        textAlign: TextAlign.center),
-                  ),
+                  // Expanded(
+            //        child: Text('${tasks[index].name} ',
+              //          textAlign: TextAlign.center),
+                //  ),
                   Expanded(
                     child: StreamBuilder(
                       initialData: "working", 
@@ -94,6 +108,12 @@ class _MyHomePageState extends State<MyHomePage> {
         child: Icon(Icons.add),
       ), // This trailing comma makes auto-formatting nicer for build methods.
     );
+  }
+   @override
+  void dispose() {
+    super.dispose();
+    streamController?.close();
+   // streamController = null;
   }
 }
 
