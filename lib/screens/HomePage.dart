@@ -2,6 +2,8 @@ import 'dart:async';
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
+import 'package:time_managment_flutter/blocs/TaskManager.dart';
+import 'package:time_managment_flutter/models/Task.dart';
 import 'package:time_managment_flutter/screens/detailTask.dart';
 import 'package:time_managment_flutter/services/tasks_services.dart';
 import 'package:http/http.dart' as http;
@@ -19,10 +21,13 @@ class MyHomePage extends StatefulWidget {
 class _MyHomePageState extends State<MyHomePage> {
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   final List<Task> tasks = [];
-  late final StreamController<Task> streamController;
+ // late final ScrollController  _controller;
   final DateTime date = DateTime(2019);
   final DateTime now = DateTime.now();
   final taskService = TaskService();
+  bool _isLoading = false;
+  List<String> _dummy = List.generate(20, (index) => 'Item $index');
+  final TaskManager manager = TaskManager();
 
 
 
@@ -35,23 +40,34 @@ class _MyHomePageState extends State<MyHomePage> {
     return tasks;
   }
   */
+  something() async {
+        var x = await TaskService.get_all();
+        print("objectnssnsn");
+        
+        print(x[0].toString());
+  }
     @override
     void initState() {
       super.initState();
-      print("starter");
+      something();
+     //   _controller.addListener(_onScroll);
+
+
+    /*  print("starter");
       print(tasks);
     streamController = StreamController.broadcast();
 
     streamController.stream.listen((p) => setState(() => tasks.add(p)));
 
     TaskService.get_all(streamController);
-    print("end")
+    print("end");
     print(tasks);
+    */
     //print(tasks);
 
     
   }
-     
+    
   _OnPressedAddList() {
    // setState(() {
       //this.tasks.add("dhdhhdhdhdhdh ");
@@ -68,7 +84,92 @@ class _MyHomePageState extends State<MyHomePage> {
         automaticallyImplyLeading: false, // Used for removing back buttoon. 
 
       ),
-      body: ListView.separated(
+        body: StreamBuilder<dynamic>(
+          stream: manager.TaskListView,
+          builder: (BuildContext context, AsyncSnapshot<dynamic> snapshot) {
+            List<Widget> children;
+            if (snapshot.hasError) {
+              children = <Widget>[
+                const Icon(
+                  Icons.error_outline,
+                  color: Colors.red,
+                  size: 60,
+                ),
+                Padding(
+                  padding: const EdgeInsets.only(top: 16),
+                  child: Text('Error: ${snapshot.error}'),
+                ),
+                Padding(
+                  padding: const EdgeInsets.only(top: 8),
+                  child: Text('Stack trace: ${snapshot.stackTrace}'),
+                ),
+              ];
+            } else {
+              switch (snapshot.connectionState) {
+                case ConnectionState.none:
+                  children = const <Widget>[
+                    Icon(
+                      Icons.info,
+                      color: Colors.blue,
+                      size: 60,
+                    ),
+                    Padding(
+                      padding: EdgeInsets.only(top: 16),
+                      child: Text('Select a lot'),
+                    )
+                  ];
+                  break;
+                case ConnectionState.waiting:
+                  children = const <Widget>[
+                    SizedBox(
+                      child: CircularProgressIndicator(),
+                      width: 60,
+                      height: 60,
+                    ),
+                    Padding(
+                      padding: EdgeInsets.only(top: 16),
+                      child: Text('Awaiting bids...'),
+                    )
+                  ];
+                  break;
+                case ConnectionState.active:
+                  children = <Widget>[
+                    const Icon(
+                      Icons.check_circle_outline,
+                      color: Colors.green,
+                      size: 60,
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.only(top: 16),
+                      child: Text('${snapshot.data.runtimeType} fjjjjjjjj'),
+                    )
+                  ];
+                  break;
+                case ConnectionState.done:
+                  children = <Widget>[
+                    const Icon(
+                      Icons.info,
+                      color: Colors.blue,
+                      size: 60,
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.only(top: 16),
+                      child: Text('\$${snapshot.data} (closed)'),
+                    )
+                  ];
+                  break;
+              }
+            }
+
+            return Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: children,
+            );
+          },
+        ),
+
+   /*   body: ListView.separated(
         padding: const EdgeInsets.all(8),
         itemCount: tasks.length,
         itemBuilder: (BuildContext context, int index) {
@@ -101,7 +202,7 @@ class _MyHomePageState extends State<MyHomePage> {
               ));
         },
         separatorBuilder: (BuildContext context, int index) => const Divider(),
-      ),
+      ),*/
       floatingActionButton: FloatingActionButton(
         onPressed: _OnPressedAddList,
         tooltip: 'Increment',
@@ -112,7 +213,7 @@ class _MyHomePageState extends State<MyHomePage> {
    @override
   void dispose() {
     super.dispose();
-    streamController?.close();
+    //_controller.dispose();
    // streamController = null;
   }
 }
@@ -128,14 +229,3 @@ Stream<int> _someData(DateTime date) async* {
   });
 }
 
-class Task {
-  final String name;
-  final bool status;
-  final List tags;
-  final double count;
-  Task.fromJsonMap(Map map):
-  name= map['task']['name'],
-  status= map['task']['status'],
-  tags= map['task']['tags'],
-  count=map['task']['count']['countedTime'];
-}

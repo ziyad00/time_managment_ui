@@ -3,6 +3,7 @@ import 'dart:convert';
 
 import 'package:flutter_session/flutter_session.dart';
 import 'package:http/http.dart' as http;
+import 'package:time_managment_flutter/models/Task.dart';
 import 'package:time_managment_flutter/screens/HomePage.dart';
 import 'package:time_managment_flutter/services/auth_service.dart';
 class TaskService {
@@ -25,28 +26,35 @@ class TaskService {
     //}
   //}
 
-  static get_all(StreamController<Task> sc) async {
+  static Future get_all() async {
     String url = "http://localhost:3000/tasks";
     var client =  http.Client();
     var token = (await AuthService.getToken())['token'];
     var userAgent = UserAgentClient(token, client);
 
-   // var req = await client.get(Uri.parse(url), headers: {'Authorization':'bearer ${token}'});
-    var req =  http.Request('get', Uri.parse(url) );
+   var req = await client.get(Uri.parse(url), headers: {'Authorization':'bearer ${token}'});
+   // var req =  http.Request('get', Uri.parse(url) );
 
     //var streamedRes = await client.send(req);
-    var streamedRes = await userAgent.send(req);
-
-    streamedRes.stream
-        .transform(utf8.decoder)
-        .transform(json.decoder)
-        .expand((e) {
+    //var streamedRes = await userAgent.send(req);
+   // streamedRes.stream
+     //   .transform(utf8.decoder)
+       // .transform(json.decoder)
+     /*   .expand((e) {
           print("object");
-            print(e );
-           return e as Iterable<dynamic>;
-        })
-        .map((map) => Task.fromJsonMap(map))
-        .pipe(sc);
+            print("["+e.toString() +"]");
+            var expanded = e  as Iterable<dynamic>;
+            print("runtime");
+            print(expanded.runtimeType);
+           return expanded;
+        })*/
+      //  .map((map) => Task.fromJsonMap(map as Map))
+       // .pipe(sc);
+           final data = jsonDecode(req.body) ;
+        List<dynamic> tasks = data['tasks'].map((json) => Task.fromJsonMap(json)).toList();
+        print("sssss");
+        print(tasks);
+       return tasks;
   }
 
   Future<dynamic> login(String email, String password) async {
