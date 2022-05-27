@@ -1,18 +1,19 @@
 import 'dart:async';
 import 'dart:convert';
 
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:time_managment_flutter/blocs/TaskManager.dart';
 import 'package:time_managment_flutter/models/Task.dart';
 import 'package:time_managment_flutter/screens/detailTask.dart';
-import 'package:time_managment_flutter/services/tasks_services.dart';
 import 'package:http/http.dart' as http;
-
-
+import 'package:time_managment_flutter/widgets/Drawer.dart';
 
 class MyHomePage extends StatefulWidget {
-  MyHomePage({Key? key}) : super(key: key);
   final String title = "Home";
+  //final User user;
+
+  // const MyHomePage({required this.user});
+  const MyHomePage();
 
   @override
   _MyHomePageState createState() => _MyHomePageState();
@@ -20,189 +21,104 @@ class MyHomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<MyHomePage> {
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
-  final List<Task> tasks = [];
- // late final ScrollController  _controller;
+  final List<Task> tasks = [
+    Task(name: "ziyad"),
+    Task(name: "ahmed"),
+  ];
+  
   final DateTime date = DateTime(2019);
   final DateTime now = DateTime.now();
-  final taskService = TaskService();
-  bool _isLoading = false;
-  List<String> _dummy = List.generate(20, (index) => 'Item $index');
-  final TaskManager manager = TaskManager();
 
+  @override
+  void initState() {
+    super.initState();
+    tasks[0].status = true;
+    tasks[1].status = false;
 
-
-
- /* _printing()async {
-    var x = await taskService.get_all();
-    final data = jsonDecode(x.body) as Map<dynamic, dynamic>;
-    data['tasks'].forEach((task) => tasks.add(task));
-    print(tasks);
-    return tasks;
   }
-  */
-  something() async {
-        var x = await TaskService.get_all();
-        print("objectnssnsn");
-        
-        print(x[0].toString());
-  }
-    @override
-    void initState() {
-      super.initState();
-      something();
-     //   _controller.addListener(_onScroll);
 
-
-    /*  print("starter");
-      print(tasks);
-    streamController = StreamController.broadcast();
-
-    streamController.stream.listen((p) => setState(() => tasks.add(p)));
-
-    TaskService.get_all(streamController);
-    print("end");
-    print(tasks);
-    */
-    //print(tasks);
-
-    
-  }
-    
   _OnPressedAddList() {
-   // setState(() {
-      //this.tasks.add("dhdhhdhdhdhdh ");
-   // });
+    setState(() {
+      for (var item in tasks) {
+        item.status=false;
+        
+      }
+      var task = Task(name: "name");
+      task.addCount();
+      this.tasks.add(task);
+    });
   }
 
   @override
   Widget build(BuildContext context) {
-
-
     return Scaffold(
       appBar: AppBar(
         title: Text(widget.title),
-        automaticallyImplyLeading: false, // Used for removing back buttoon. 
-
+        automaticallyImplyLeading: false, // Used for removing back buttoon.
       ),
-        body: StreamBuilder<dynamic>(
-          stream: manager.TaskListView,
-          builder: (BuildContext context, AsyncSnapshot<dynamic> snapshot) {
-            List<Widget> children;
-            if (snapshot.hasError) {
-              children = <Widget>[
-                const Icon(
-                  Icons.error_outline,
-                  color: Colors.red,
-                  size: 60,
-                ),
-                Padding(
-                  padding: const EdgeInsets.only(top: 16),
-                  child: Text('Error: ${snapshot.error}'),
-                ),
-                Padding(
-                  padding: const EdgeInsets.only(top: 8),
-                  child: Text('Stack trace: ${snapshot.stackTrace}'),
-                ),
-              ];
-            } else {
-              switch (snapshot.connectionState) {
-                case ConnectionState.none:
-                  children = const <Widget>[
-                    Icon(
-                      Icons.info,
-                      color: Colors.blue,
-                      size: 60,
-                    ),
-                    Padding(
-                      padding: EdgeInsets.only(top: 16),
-                      child: Text('Select a lot'),
-                    )
-                  ];
-                  break;
-                case ConnectionState.waiting:
-                  children = const <Widget>[
-                    SizedBox(
-                      child: CircularProgressIndicator(),
-                      width: 60,
-                      height: 60,
-                    ),
-                    Padding(
-                      padding: EdgeInsets.only(top: 16),
-                      child: Text('Awaiting bids...'),
-                    )
-                  ];
-                  break;
-                case ConnectionState.active:
-                  children = <Widget>[
-                    const Icon(
-                      Icons.check_circle_outline,
-                      color: Colors.green,
-                      size: 60,
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.only(top: 16),
-                      child: Text('${snapshot.data.runtimeType} fjjjjjjjj'),
-                    )
-                  ];
-                  break;
-                case ConnectionState.done:
-                  children = <Widget>[
-                    const Icon(
-                      Icons.info,
-                      color: Colors.blue,
-                      size: 60,
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.only(top: 16),
-                      child: Text('\$${snapshot.data} (closed)'),
-                    )
-                  ];
-                  break;
-              }
-            }
+      drawer: drawer(),
 
-            return Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: children,
-            );
-          },
-        ),
-
-   /*   body: ListView.separated(
+      body: ListView.separated(
         padding: const EdgeInsets.all(8),
         itemCount: tasks.length,
         itemBuilder: (BuildContext context, int index) {
-          return new GestureDetector(
-          //    onTap: () {
-            //    Navigator.pushNamed(context, '/second',
-              //      arguments: tasks[index]['task']['name'] );
-              //},
-              child: Row(
-                children: <Widget>[
-                  // Expanded(
-            //        child: Text('${tasks[index].name} ',
-              //          textAlign: TextAlign.center),
-                //  ),
-                  Expanded(
-                    child: StreamBuilder(
-                      initialData: "working", 
-                      stream: _someData(date),
-                      builder: (context, snapshot) {
-                        return Text("Craft ${now.difference(date).inMilliseconds} ${snapshot.data.toString()}",
-                      textAlign: TextAlign.center);
-
-                        
-                      },
+          if (tasks[index].status == true) {
+            return  GestureDetector(
+                onTap: () {
+                  Navigator.pushNamed(context, '/detail',
+                      arguments: tasks[index]);
+                },
+                child: Row(
+                  children: <Widget>[
+                    Expanded(
+                      child: Text('${tasks[index].name} ',
+                          textAlign: TextAlign.center),
+                    ),
+                    Expanded(
+                      child: StreamBuilder(
+                        initialData: "working",
+                        stream: calcTimerPeriodically(date),
+                        builder: (context, snapshot) {
+                          return Text(
+                              "Craft ${now.difference(date).inMilliseconds} ${snapshot.data.toString()}",
+                              textAlign: TextAlign.center);
+                        },
                       ),
-   
-                  ),
-                
-                ],
-              ));
+                    ),
+                    Expanded(child: 
+                     GestureDetector(
+                onTap: () {
+                  tasks[index].status=false;
+                  setState(() {
+                    
+                  });
+
+                },child:
+                    Icon(Icons.stop_circle_outlined))
+                )],
+                ));
+          } else {
+            return new GestureDetector(
+                onTap: () {
+                  Navigator.pushNamed(context, '/detail',
+                      arguments: tasks[index]);
+                },
+                child: Row(
+                  children: <Widget>[
+                    Expanded(
+                      child: Text('${tasks[index].name} ',
+                          textAlign: TextAlign.center),
+                    ),
+                    Expanded(
+                        child: Text(
+                            "Craft ${tasks[index].calcCount()}",
+                            textAlign: TextAlign.center)),
+                  ],
+                ));
+          }
         },
         separatorBuilder: (BuildContext context, int index) => const Divider(),
-      ),*/
+      ),
       floatingActionButton: FloatingActionButton(
         onPressed: _OnPressedAddList,
         tooltip: 'Increment',
@@ -210,22 +126,19 @@ class _MyHomePageState extends State<MyHomePage> {
       ), // This trailing comma makes auto-formatting nicer for build methods.
     );
   }
-   @override
+
+  @override
   void dispose() {
     super.dispose();
-    //_controller.dispose();
-   // streamController = null;
   }
 }
 
-
-
-Stream<int> _someData(DateTime date) async* {
-  yield* Stream.periodic(Duration(seconds: 1), (int a){
+Stream<int> calcTimerPeriodically(DateTime date) async* {
+  yield* Stream.periodic(Duration(seconds: 1), (int a) {
     final DateTime now = DateTime.now();
     a = now.difference(date).inSeconds;
     return a;
-    //return a++;
   });
 }
+
 
