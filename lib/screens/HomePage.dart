@@ -22,28 +22,32 @@ class MyHomePage extends StatefulWidget {
 class _MyHomePageState extends State<MyHomePage> {
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   final List<Task> tasks = [
-    Task(name: "ziyad"),
-    Task(name: "ahmed"),
+
   ];
+  int x = 0;
   
-  final DateTime date = DateTime(2019);
   final DateTime now = DateTime.now();
 
   @override
   void initState() {
     super.initState();
-    tasks[0].status = true;
-    tasks[1].status = false;
+
 
   }
 
   _OnPressedAddList() {
     setState(() {
       for (var item in tasks) {
+        if(item.status==true){
+        item.stopCount();
+
+        }
         item.status=false;
         
       }
-      var task = Task(name: "name");
+      
+      var task = Task(name: "name " + x.toString());
+      x+=1;
       task.addCount();
       this.tasks.add(task);
     });
@@ -63,6 +67,7 @@ class _MyHomePageState extends State<MyHomePage> {
         itemCount: tasks.length,
         itemBuilder: (BuildContext context, int index) {
           if (tasks[index].status == true) {
+            var dateTask = tasks[index].dates?.last['start_time'];
             return  GestureDetector(
                 onTap: () {
                   Navigator.pushNamed(context, '/detail',
@@ -77,10 +82,10 @@ class _MyHomePageState extends State<MyHomePage> {
                     Expanded(
                       child: StreamBuilder(
                         initialData: "working",
-                        stream: calcTimerPeriodically(date),
+                        stream: calcTimerPeriodically(dateTask!),
                         builder: (context, snapshot) {
                           return Text(
-                              "Craft ${now.difference(date).inMilliseconds} ${snapshot.data.toString()}",
+                              "${snapshot.data.toString()}",
                               textAlign: TextAlign.center);
                         },
                       ),
@@ -89,6 +94,8 @@ class _MyHomePageState extends State<MyHomePage> {
                      GestureDetector(
                 onTap: () {
                   tasks[index].status=false;
+                  tasks[index].stopCount();
+
                   setState(() {
                     
                   });

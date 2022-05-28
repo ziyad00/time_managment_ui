@@ -14,11 +14,20 @@ class Task {
 
     
   }
+    stopCount() {
+      this.dates?.last["stop_time"]=DateTime.now();
+
+    
+  }
   calcCount() {
     var count = 0;
     for (var item in dates!) {
-    count += DateTime.now().difference(item['start_time']!).inMilliseconds as int;
+    if(item['stop_time'] !=null){
+    count += item['stop_time']?.difference(item['start_time']!).inSeconds as int;
+    }else {
+      count += DateTime.now().difference(item['start_time']!).inSeconds as int;
 
+    }
 
       
     }
@@ -33,6 +42,6 @@ class Task {
   //count=map['task']['count']['countedTime'];
    @override
   String toString() {
-    return "Task (${this.name} ${this.status} ${this.tags} ${this.dates}}";
+    return "Task (name: ${this.name} status: ${this.status} tags: ${this.tags} count: ${this.calcCount()} startDate: ${this.dates?.last['start_time']})";
   }
 }
