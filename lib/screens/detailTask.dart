@@ -1,11 +1,12 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:time_managment_flutter/models/Task.dart';
 import 'package:time_managment_flutter/screens/HomePage.dart';
 
 class DetailTask extends StatefulWidget {
-    final String routeArgs;
+    final Task task;
 
-  const DetailTask(this.routeArgs, {Key? key}) : super(key: key);
+  const DetailTask(this.task, {Key? key}) : super(key: key);
 
   @override
   DetailTaskState createState() {
@@ -31,7 +32,7 @@ class DetailTaskState extends State<DetailTask> {
   decoration: InputDecoration(
     border: OutlineInputBorder(),
     labelText: 'Name',
-    hintText: widget.routeArgs,
+    hintText: widget.task.name,
   ),
   
 ), TextFormField(

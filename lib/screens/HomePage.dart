@@ -46,7 +46,7 @@ class _MyHomePageState extends State<MyHomePage> {
         
       }
       
-      var task = Task(name: "name " + x.toString());
+      var task = Task(name: "task " + x.toString());
       x+=1;
       task.addCount();
       this.tasks.add(task);
@@ -118,7 +118,7 @@ class _MyHomePageState extends State<MyHomePage> {
                     ),
                     Expanded(
                         child: Text(
-                            "Craft ${tasks[index].calcCount()}",
+                            "${tasks[index].calcCount()} seconds",
                             textAlign: TextAlign.center)),
                   ],
                 ));

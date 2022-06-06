@@ -29,7 +29,7 @@ class FireAuth {
     } catch (e) {
       print(e);
     }
-
+    print(user);
     return user;
   }
 
